@@ -23,7 +23,8 @@ async fn manual_hello() -> impl Responder {
 async fn main() -> std::io::Result<()> {
     dotenv().ok();
     env_logger::init_from_env(Env::default().default_filter_or("info"));
-    println!("Hello, world!");
+    let app_addr = env::var(envkey::env_key::APP_ADDR).expect("APP Address Not Set");
+    println!("Server Start At http://{}", app_addr);
     HttpServer::new(|| {
         App::new()
             .wrap(Logger::default())
@@ -31,7 +32,7 @@ async fn main() -> std::io::Result<()> {
             .service(echo)
             .route("hey", web::get().to(manual_hello))
     })
-    .bind(env::var(envkey::env_key::APP_ADDR).expect("APP Address Not Set"))?
+    .bind(app_addr)?
     .run()
     .await
 }
