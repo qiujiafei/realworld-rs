@@ -1,6 +1,7 @@
+use actix_web::{get, middleware::Logger, post, web, App, HttpResponse, HttpServer, Responder};
 use dotenv::dotenv;
+use env_logger::Env;
 use std::env;
-use actix_web::{get, post, web, App, HttpResponse, HttpServer, Responder};
 
 mod envkey;
 
@@ -21,10 +22,11 @@ async fn manual_hello() -> impl Responder {
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
     dotenv().ok();
-
+    env_logger::init_from_env(Env::default().default_filter_or("info"));
     println!("Hello, world!");
     HttpServer::new(|| {
         App::new()
+            .wrap(Logger::default())
             .service(hello)
             .service(echo)
             .route("hey", web::get().to(manual_hello))
